@@ -310,7 +310,7 @@ app.post("/structured_output", async (c) => {
       const { data, error } = await supabaseClient
         .from("esims")
         .select("*")
-        .eq("country_name", country_name.toLowerCase());
+        .filter("country_name","eq", country_name.toLowerCase());
 
       if (error) {
         console.error(`Database error: ${error.message}`);
