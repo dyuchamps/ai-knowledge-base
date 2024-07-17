@@ -23,6 +23,7 @@ interface Document {
   data_unit: string;
   duration_in_days: number;
   price_in_usd: number;
+  chat_response: string;
 }
 
 interface Output {
@@ -141,6 +142,11 @@ app.post("/prompt", async (c) => {
       data_amount: z.number().describe("The amount of data available"),
       data_unit: z.enum(["mb", "gb"]).describe("The unit of data"),
       duration_in_days: z.number().describe("The duration in days"),
+      chat_response: z
+        .string()
+        .describe(
+          "A response to the human's input and ask if they want to purchase that eSIM plan or not",
+        ),
     });
     const functionCallingModel = model.bind({
       functions: [
@@ -162,32 +168,119 @@ app.post("/prompt", async (c) => {
       });
       console.log("Result:", result);
 
-      const { country_name, duration_in_days, data_amount, data_unit } = result;
+      const { country_name, data_amount, data_unit, duration_in_days, chat_response } = result;
       console.log(`Querying for country: ${country_name.toLowerCase()}`);
 
       const { data, error } = await supabaseClient
-        .from("documents")
+        .from("esims")
         .select("*")
-        .eq("content", country_name.toLowerCase())
-        // .eq("data_amount", data_amount)
-        // .eq("data_unit", data_unit.toLowerCase())
-        // .eq("duration_in_days", duration_in_days);
-    
+        .like("country_name", `%${country_name.toLowerCase()}%`)
+        .like("data_unit", `%${data_unit}%`)
+        // .eq("country_name", country_name.toLowerCase())
+        // .eq("data_unit", data_unit)
+        // .gte("data_amount", data_amount)
+        .gte("duration_in_days", duration_in_days);
+
+      console.log(`Data retrieved: `, data);
+
       if(error){
         console.error(`Database error: ${error.message}`);
         return c.json({ error: error.message }, 500);
       }
 
-      if(data.length === 0){
-        console.log(`No data found for country: ${country_name}`);
-        return c.json({ error: "No data found" }, 404);
+      let responseJson;
+      if (data.length === 0) {
+        const { data: closeMatches, error: closeMatchesError } = await supabaseClient
+          .from("esims")
+          .select("*")
+          .eq("country_name", country_name.toLowerCase())
+          .order("duration_in_days", { ascending: false })
+          .limit(2);
+
+        if (closeMatchesError) {
+          console.error(`Database error: ${closeMatchesError.message}`);
+          return c.json({ error: closeMatchesError.message }, 500);
+        }
+
+        responseJson = {
+          status: 404,
+          success: false,
+          result: `No exact match found. Here are the closest matches based on ${country_name} esim.`,
+          data: closeMatches,
+        };
+        
+      } else {
+        console.log(`Exact match found for country: ${country_name}`);
+        responseJson = {
+          status: 200,
+          success: true,
+          // result: data.chat_response,
+          data: data,
+        };
       }
+      
+      
 
-      console.log(`Data retrieved: `, data);
+      // if(data.length === 0){
+      //   console.log(`No data found for country: ${country_name}`);
+      //   return c.json({ error: `No data found. ${chat_response}` }, 404);
+      // }
 
-      const mergedResult = { ...result, ...data[0] };
+      // console.log(`Data retrieved: `, data);
 
-      return c.json(mergedResult, 200);
+      // const mergedResult = { ...result, ...data[0] };
+
+
+
+      // const stream = new Readable({
+      //   async read() {
+      //     try {
+      //       const responseJson = {
+      //         status: 200,
+      //         success: true,
+      //         result: mergedResult.chat_response,
+      //         data: {
+      //           country_name : mergedResult.country_name,
+      //           data_amount: mergedResult.data_amount,
+      //           data_unit: mergedResult.data_unit,
+      //           duration_in_days: mergedResult.duration_in_days,
+      //           price_in_usd: mergedResult.price_in_usd,
+      //         }
+      //       };
+    
+      //       this.push(`data: ${JSON.stringify(responseJson)}\n\n`);
+      //       this.push(null);
+      //     } catch (error: any) {
+      //       const errorJson = { error: error.message };
+      //       this.push(`data: ${JSON.stringify(errorJson)}\n\n`);
+      //       this.push(null);
+      //     }
+      //   }
+      // });
+    
+      // c.res.setHeader('Content-Type', 'text/event-stream');
+      // c.res.setHeader('Cache-Control', 'no-cache');
+      // c.res.setHeader('Connection', 'keep-alive');
+    
+      // stream.pipe(c.res);
+
+
+
+      // const responseJson = {
+      //   status: 200,
+      //   success: true,
+      //   result: mergedResult.chat_response,
+      //   data: {
+      //     country_name : mergedResult.country_name,
+      //     data_amount: mergedResult.data_amount,
+      //     data_unit: mergedResult.data_unit,
+      //     duration_in_days: mergedResult.duration_in_days,
+      //     price_in_usd: mergedResult.price_in_usd,
+      //   }
+        
+      // }
+
+      return c.json(responseJson, 200);
     } catch (e: any) {
       return c.json({ error: e.message }, 500);
     }
@@ -195,6 +288,8 @@ app.post("/prompt", async (c) => {
     return c.json({ error: e.message }, 500);
   }
   
+
+
   // const body = await c.req.parseBody();
 
   // c.header("Content-Type", "text/event-stream");
@@ -207,7 +302,7 @@ app.post("/prompt", async (c) => {
   // const stream = new ReadableStream({
   //   async start(controller) {
   //     try {
-  //       await chain.invoke(String(body.text), {
+  //       await chain.invoke(String(body.messages), {
   //         callbacks: [
   //           {
   //             handleLLMNewToken(token: string) {
@@ -285,7 +380,7 @@ app.post("/structured_output", async (c) => {
           name: "output_formatter",
           description: "Should always be used to properly format output",
           parameters: zodToJsonSchema(schema),
-        },  
+        },
       ],
       function_call: { name: "output_formatter" },
     });
@@ -310,7 +405,7 @@ app.post("/structured_output", async (c) => {
       const { data, error } = await supabaseClient
         .from("esims")
         .select("*")
-        .filter("country_name","eq", country_name.toLowerCase());
+        .eq("country_name", country_name.toLowerCase());
 
       if (error) {
         console.error(`Database error: ${error.message}`);
