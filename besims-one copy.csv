@@ -1,0 +1,496 @@
+id,country_code,plan_option,data_amount,data_unit,duration_in_days,option_id,idr_price,created_at,updated_at,supply_price,product_information,plan_type,product_information_id
+2611,KR,UNLIMITED,1,GB,1,76CEFB7D-90B6-EE11-B65E-6045BD45CB1E,56000,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2612,KR,UNLIMITED,1,GB,2,77CEFB7D-90B6-EE11-B65E-6045BD45CB1E,78400,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2613,KR,UNLIMITED,1,GB,3,78CEFB7D-90B6-EE11-B65E-6045BD45CB1E,100800,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2614,KR,UNLIMITED,1,GB,4,79CEFB7D-90B6-EE11-B65E-6045BD45CB1E,121600,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2615,KR,UNLIMITED,1,GB,5,7ACEFB7D-90B6-EE11-B65E-6045BD45CB1E,145600,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2616,KR,UNLIMITED,1,GB,7,7BCEFB7D-90B6-EE11-B65E-6045BD45CB1E,179200,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2617,KR,UNLIMITED,1,GB,8,7CCEFB7D-90B6-EE11-B65E-6045BD45CB1E,196800,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2618,KR,UNLIMITED,1,GB,10,7DCEFB7D-90B6-EE11-B65E-6045BD45CB1E,238400,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2619,KR,UNLIMITED,1,GB,15,7ECEFB7D-90B6-EE11-B65E-6045BD45CB1E,313600,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2620,KR,UNLIMITED,1,GB,20,7FCEFB7D-90B6-EE11-B65E-6045BD45CB1E,363200,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2621,KR,UNLIMITED,1,GB,30,80CEFB7D-90B6-EE11-B65E-6045BD45CB1E,460800,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2622,KR,UNLIMITED,2,GB,1,81CEFB7D-90B6-EE11-B65E-6045BD45CB1E,73600,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2623,KR,UNLIMITED,2,GB,2,82CEFB7D-90B6-EE11-B65E-6045BD45CB1E,118400,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2624,KR,UNLIMITED,2,GB,3,83CEFB7D-90B6-EE11-B65E-6045BD45CB1E,160000,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"
+2625,KR,UNLIMITED,2,GB,4,84CEFB7D-90B6-EE11-B65E-6045BD45CB1E,203200,2024-01-26 08:03:10.948+00,2024-01-26 08:03:10.948+00,0,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Data Only (No Calls)"",
+    ""eKYC (Identity Verification)"": ""Not required"",
+    ""Description"": [
+      ""After you have used up data daily expense, the data will update into unlimited speed automatically"",
+      ""QoS (low speed): 128kbps."",
+      ""Eligibility period and data begin in 24 hours from the time you activate your eSIM following registration.""
+    ]
+  },
+  ""Policy"": [
+    ""The check-in (purchase confirmation) period is 90 days from the date of product purchase, and you can request for a refund during this period."",
+    ""Exchanges/refunds are not possible after check-in (purchase confirmation).""
+  ]
+}",ROAMING,"{
+  ""Description"": {
+    ""Provider"": ""SKT/KT"",
+    ""Network"": ""5G"",
+    ""Supported"": ""Hanya Data (Tanpa Panggilan)"",
+    ""eKYC (Identity Verification)"": ""Tidak diperlukan"",
+    ""Description"": [
+      ""Setelah Anda menggunakan biaya harian data, data akan diperbarui menjadi kecepatan tak terbatas secara otomatis"",
+      ""QoS (kecepatan rendah): 128kbps."",
+      ""Periode kelayakan dan data dimulai dalam 24 jam sejak Anda mengaktifkan eSIM setelah pendaftaran.""
+    ]
+  },
+  ""Policy"": [
+    ""Periode check-in (konfirmasi pembelian) adalah 90 hari sejak tanggal pembelian produk, dan Anda dapat meminta pengembalian dana selama periode ini."",
+    ""Penukaran/pengembalian uang tidak dapat dilakukan setelah check-in (konfirmasi pembelian).""
+  ]
+}"

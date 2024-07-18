@@ -18,11 +18,12 @@ import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 interface Document {
+  country_code: string;
   country_name: string;
   data_amount: number;
   data_unit: string;
   duration_in_days: number;
-  price_in_usd: number;
+  idr_price: number;
   chat_response: string;
 }
 
@@ -37,9 +38,19 @@ interface Output {
 }
 
 const app = new Hono();
-const loader = new CSVLoader("esims.csv");
 
-const docs = await loader.load();
+const loadCSVData = async (filePath: string) => {
+  const loader = new CSVLoader(filePath);
+  return await loader.load();
+};
+
+const esimDocsOne = await loadCSVData("besims-one copy.csv");
+const esimDocsTwo = await loadCSVData("besims-two.csv");
+const esimDocsThree = await loadCSVData("besims-three.csv");
+const esimDocsFour = await loadCSVData("besims-four.csv");
+const countryDocs = await loadCSVData("countries.csv");
+
+// const docs = await loader.load();
 
 // init supabase instance
 const supabaseClient = createClient(
@@ -71,6 +82,10 @@ const promptTemplate = ChatPromptTemplate.fromMessages([
     "system",
     "If you have the electronic SIM card plan your customer requested, provide it with an exciting manner, and tell them to have a good trip. Only provide on most relevant answer.",
   ],
+  [
+    "system",
+    "Extract the requested fields from the input. The field 'entity' refers to the first mentioned entity in the input."
+  ],
   ["human", "{text}"],
 ]);
 
@@ -83,7 +98,8 @@ const model = new ChatOpenAI({
 
 // store the data into the "documents" table, init supabase vector store instance with openai embedding model and db config args
 const vectorStore = await SupabaseVectorStore.fromDocuments(
-  docs,
+  // docs,
+  [...esimDocsOne, ...countryDocs],
   new OpenAIEmbeddings({
     apiKey: Bun.env.OPENAI_API_KEY,
     model: "text-embedding-ada-002",
@@ -122,11 +138,57 @@ const TEMPLATEPROMPT = `Extract the requested fields from the input.
 
 The field "entity" refers to the first mentioned entity in the input.
 
+If you have the electronic SIM card plan your customer requested, provide it with an exciting manner, and tell them to have a good trip. Only provide on most relevant answer.
+
+If you happen to not have the electronic SIM card plan they request, apologize, and provide another electronic SIM card plans recommendation closest to what they requested but only based on the electronic SIM card plans you have. Maximum 2.
+
+If the customer tells you the duration of their travel or electronic SIM plan in format other than days, convert them to days first.
+
+"You are an avid traveler and an outgoing person who sells electronic SIM card.",
+
+
 Input:
 
 {input}`;
 
-app.post("/prompt", async (c) => {
+
+const getCountryCode = async (countryName: string) => {
+  const { data, error } = await supabaseClient
+  .from("countries")
+  .select("*")
+  .eq("name", countryName);
+  
+  if(error){
+    console.error(`Database error: ${error.message}`);
+    return null
+  }
+
+  if(data.length === 0){
+    return null;
+  }
+  return data[0].code;
+};
+
+const getEsimData = async (country_code: string, data_amount: number, data_unit: string, duration_in_days: number) =>  {
+  console.log(`Querying for country code: ${country_code}`);
+  const { data, error } = await supabaseClient
+    .from("besim")
+    .select("*")
+    .like("country_code", `%${country_code}%`)
+    .like("data_unit", `%${data_unit}%`)
+    .eq("data_unit", data_unit)
+    .gte("data_amount", data_amount)
+    .gte("duration_in_days", duration_in_days);
+
+  if(error){
+    console.error(`Database error: ${error.message}`);
+    return null
+  }
+
+  return data;
+}
+
+app.post("/prompt", async (c: any) => {
   try {
     const body = await c.req.json();
     const messages = body.messages ?? [];
@@ -138,9 +200,10 @@ app.post("/prompt", async (c) => {
 
     const prompt = PromptTemplate.fromTemplate(TEMPLATEPROMPT);
     const schema = z.object({
+      country_code: z.string().describe("The code of the country"),
       country_name: z.string().describe("The name of the country"),
       data_amount: z.number().describe("The amount of data available"),
-      data_unit: z.enum(["mb", "gb"]).describe("The unit of data"),
+      data_unit: z.enum(["MB", "GB"]).describe("The unit of data"),
       duration_in_days: z.number().describe("The duration in days"),
       chat_response: z
         .string()
@@ -163,122 +226,70 @@ app.post("/prompt", async (c) => {
       const chain = prompt
         .pipe(functionCallingModel)
         .pipe(new JsonOutputFunctionsParser());
+      
       const result: Document = await chain.invoke({ 
-        input: currentMessageContent 
+        input: currentMessageContent ,
+        // context: context
       });
       console.log("Result:", result);
 
-      const { country_name, data_amount, data_unit, duration_in_days, chat_response } = result;
-      console.log(`Querying for country: ${country_name.toLowerCase()}`);
+      const { country_name, data_amount, data_unit, duration_in_days } = result;
 
-      const { data, error } = await supabaseClient
-        .from("esims")
-        .select("*")
-        .like("country_name", `%${country_name.toLowerCase()}%`)
-        .like("data_unit", `%${data_unit}%`)
-        // .eq("country_name", country_name.toLowerCase())
-        // .eq("data_unit", data_unit)
-        // .gte("data_amount", data_amount)
-        .gte("duration_in_days", duration_in_days);
-
-      console.log(`Data retrieved: `, data);
-
-      if(error){
-        console.error(`Database error: ${error.message}`);
-        return c.json({ error: error.message }, 500);
-      }
-
+      const countryCode = await getCountryCode(country_name);
+      const esimData = await getEsimData(countryCode, data_amount, data_unit, duration_in_days);
+      console.log(`Esim data: ${JSON.stringify(esimData, null, 2)}`);
       let responseJson;
-      if (data.length === 0) {
-        const { data: closeMatches, error: closeMatchesError } = await supabaseClient
-          .from("esims")
+      if(!esimData){
+        return responseJson = {
+          status: 404,
+          success: false,
+          result: `No exact match found. Here are the closest matches based on ${country_name} esim.`,
+        };
+      }
+      
+
+      if(esimData.length === 0){
+        const recommendation = await getCountryCode(country_name);
+        const {data: closeMatches, error: closeMatchesError} = await supabaseClient
+          .from("besim")
           .select("*")
-          .eq("country_name", country_name.toLowerCase())
+          .eq("country_code", recommendation)
           .order("duration_in_days", { ascending: false })
           .limit(2);
 
-        if (closeMatchesError) {
-          console.error(`Database error: ${closeMatchesError.message}`);
+        if(closeMatchesError){
           return c.json({ error: closeMatchesError.message }, 500);
         }
 
         responseJson = {
-          status: 404,
+          status: 200,
           success: false,
-          result: `No exact match found. Here are the closest matches based on ${country_name} esim.`,
+          message: `No exact match found. Here are the closest matches based on ${country_name} esim.`,
+          chat_response: result.chat_response,
           data: closeMatches,
         };
-        
       } else {
-        console.log(`Exact match found for country: ${country_name}`);
         responseJson = {
           status: 200,
           success: true,
-          // result: data.chat_response,
-          data: data,
-        };
+          messages: `Exact match found for country: ${country_name}`,
+          chat_response: result.chat_response,
+          data: {
+            country_code: esimData[0].country_code,
+            country_name : esimData[0].country_name,
+            created_at: esimData[0].created_at,
+            data_amount: esimData[0].data_amount,
+            data_unit: esimData[0].data_unit,
+            duration_in_days: esimData[0].duration_in_days,
+            id: esimData[0].id,
+            idr_price: esimData[0].idr_price,
+            option_id: esimData[0].option_id,
+            plan_option: esimData[0].plan_option,
+            updated_at: esimData[0].updated_at,
+          }
+          
+        }
       }
-      
-      
-
-      // if(data.length === 0){
-      //   console.log(`No data found for country: ${country_name}`);
-      //   return c.json({ error: `No data found. ${chat_response}` }, 404);
-      // }
-
-      // console.log(`Data retrieved: `, data);
-
-      // const mergedResult = { ...result, ...data[0] };
-
-
-
-      // const stream = new Readable({
-      //   async read() {
-      //     try {
-      //       const responseJson = {
-      //         status: 200,
-      //         success: true,
-      //         result: mergedResult.chat_response,
-      //         data: {
-      //           country_name : mergedResult.country_name,
-      //           data_amount: mergedResult.data_amount,
-      //           data_unit: mergedResult.data_unit,
-      //           duration_in_days: mergedResult.duration_in_days,
-      //           price_in_usd: mergedResult.price_in_usd,
-      //         }
-      //       };
-    
-      //       this.push(`data: ${JSON.stringify(responseJson)}\n\n`);
-      //       this.push(null);
-      //     } catch (error: any) {
-      //       const errorJson = { error: error.message };
-      //       this.push(`data: ${JSON.stringify(errorJson)}\n\n`);
-      //       this.push(null);
-      //     }
-      //   }
-      // });
-    
-      // c.res.setHeader('Content-Type', 'text/event-stream');
-      // c.res.setHeader('Cache-Control', 'no-cache');
-      // c.res.setHeader('Connection', 'keep-alive');
-    
-      // stream.pipe(c.res);
-
-
-
-      // const responseJson = {
-      //   status: 200,
-      //   success: true,
-      //   result: mergedResult.chat_response,
-      //   data: {
-      //     country_name : mergedResult.country_name,
-      //     data_amount: mergedResult.data_amount,
-      //     data_unit: mergedResult.data_unit,
-      //     duration_in_days: mergedResult.duration_in_days,
-      //     price_in_usd: mergedResult.price_in_usd,
-      //   }
-        
-      // }
 
       return c.json(responseJson, 200);
     } catch (e: any) {
@@ -288,57 +299,6 @@ app.post("/prompt", async (c) => {
     return c.json({ error: e.message }, 500);
   }
   
-
-
-  // const body = await c.req.parseBody();
-
-  // c.header("Content-Type", "text/event-stream");
-  // c.header("Cache-Control", "no-cache");
-  // c.header("Connection", "keep-alive");
-
-  // let accumulatedTokens: string[] = [];
-
-  // // Invoke the chain, passing user's query, setting up readable stream
-  // const stream = new ReadableStream({
-  //   async start(controller) {
-  //     try {
-  //       await chain.invoke(String(body.messages), {
-  //         callbacks: [
-  //           {
-  //             handleLLMNewToken(token: string) {
-  //               accumulatedTokens.push(token); 
-  //             },
-  //           },
-  //         ],
-  //       });
-
-  //       const resultText = accumulatedTokens.join('');
-
-  //       const responseJson = JSON.stringify({
-  //         status: 200,
-  //         success: true,
-  //         result: resultText,
-  //         data: {
-  //           country_name : "Thailand",
-  //           data_amount: 10,
-  //           data_unit: "gb",
-  //           duration_in_days: 10,
-  //           price_in_usd: 10,
-  //         }
-          
-  //       });
-
-  //       controller.enqueue(`data: ${responseJson}\n\n`);
-  //       controller.close();
-  //     } catch (error: any) {
-  //       const errorJson = JSON.stringify({ error: error.message });
-  //       controller.enqueue(`data: ${errorJson}\n\n`);
-  //       controller.close();
-  //     }
-  //   },
-  // });
-
-  // return c.newResponse(stream);
 });
 
 // Define the model to extract the requested fields from the input
