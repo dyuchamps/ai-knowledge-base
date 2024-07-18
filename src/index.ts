@@ -166,7 +166,7 @@ const getCountryCode = async (countryName: string) => {
   if(data.length === 0){
     return null;
   }
-  return data[0].code;
+  return data[0];
 };
 
 const getEsimData = async (country_code: string, data_amount: number, data_unit: string, duration_in_days: number) =>  {
@@ -228,15 +228,14 @@ app.post("/prompt", async (c: any) => {
         .pipe(new JsonOutputFunctionsParser());
       
       const result: Document = await chain.invoke({ 
-        input: currentMessageContent ,
-        // context: context
+        input: currentMessageContent,
       });
       console.log("Result:", result);
 
       const { country_name, data_amount, data_unit, duration_in_days } = result;
 
       const countryCode = await getCountryCode(country_name);
-      const esimData = await getEsimData(countryCode, data_amount, data_unit, duration_in_days);
+      const esimData = await getEsimData(countryCode.code, data_amount, data_unit, duration_in_days);
       console.log(`Esim data: ${JSON.stringify(esimData, null, 2)}`);
       let responseJson;
       if(!esimData){
@@ -276,7 +275,7 @@ app.post("/prompt", async (c: any) => {
           chat_response: result.chat_response,
           data: {
             country_code: esimData[0].country_code,
-            country_name : esimData[0].country_name,
+            country_name : countryCode.name,
             created_at: esimData[0].created_at,
             data_amount: esimData[0].data_amount,
             data_unit: esimData[0].data_unit,
