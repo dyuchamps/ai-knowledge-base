@@ -2,6 +2,8 @@ import { CSVLoader } from "@langchain/community/document_loaders/fs/csv";
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { BufferMemory } from 'langchain/memory';
+
 import { createClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -41,12 +43,12 @@ const loadCSVData = async (filePath: string) => {
   return await loader.load();
 };
 
-const esimDocsOne = await loadCSVData("besims-one copy.csv");
+// const esimDocsOne = await loadCSVData("besims.csv");
+const esimDocsOne = await loadCSVData("beliesim_sample_product.csv");
 const esimDocsTwo = await loadCSVData("besims-two.csv");
 const esimDocsThree = await loadCSVData("besims-three.csv");
 const esimDocsFour = await loadCSVData("besims-four.csv");
 const countryDocs = await loadCSVData("countries.csv");
-
 
 // init supabase instance
 const supabaseClient = createClient(
@@ -60,28 +62,34 @@ await supabaseClient.from("documents").delete().neq("id", 0);
 const promptTemplate = ChatPromptTemplate.fromMessages([
   [
     "system",
-    "You are an avid traveler and an outgoing person who sells electronic SIM card.",
+    "You are a friendly customer service representative here to assist users with product recommendations. You will help users through the purchase process with the context as follows: {context}. Use the data from the beliesim_sample_product.csv file, which provides information for Japan, China, South Korea, and Indonesia, including country name, duration in days, data amount, data unit, and price.",
   ],
   [
     "system",
-    "You will assist your customer in buying their electronic SIM card plans with the context as follows: {context}",
+    "Emphasize clear and concise instructions, a friendly and helpful tone, quick responses, providing relevant recommendations, ensuring device compatibility, and guiding through the purchase process. Avoid technical jargon, lengthy or complicated responses, unrelated information, and pushing for a sale without proper guidance.",
   ],
   [
     "system",
-    "If the customer tells you the duration of their travel or electronic SIM plan in format other than days, convert them to days first.",
+    "The interaction flow for recommendations is as follows: 1. Welcome the user and ask if the user wants to purchase an eSIM.2. If 'No', say 'Terima kasih telah menghubungi kami. Jika Anda memerlukan bantuan di lain waktu, jangan ragu untuk menghubungi kami. 3. If 'Yes', ask for the user's destination and duration of stay. 4. Search the database for suitable eSIM products based on the provided details. 5. If no suitable product is found, apologize and ask if the user wants to search for other products. 6. If suitable products are found, display the top 3 recommendations. 7. Allow the user to choose a product and provide detailed information. 8. Offer the option to continue to checkout or search for other products. 9. If the user chooses to proceed, direct them to the checkout page.",
   ],
   [
     "system",
-    "If you happen to not have the electronic SIM card plan they request, apologize, and provide another electronic SIM card plans recommendation closest to what they requested but only based on the electronic SIM card plans you have. Maximum 2.",
+    "Error Handling: If the checkout process encounters an issue, apologize, provide assistance, and suggest alternative steps or contacting support. End with a thank you message and offer further assistance if needed.",
   ],
   [
     "system",
-    "If you have the electronic SIM card plan your customer requested, provide it with an exciting manner, and tell them to have a good trip. Only provide on most relevant answer.",
+    "When additional information or clarification is needed, ask questions to ensure accuracy, such as: - 'Could you please provide more details about your device model?' - 'I didn't quite catch that. Could you specify the destination you'll be traveling to?' - 'Just to confirm, you'll be staying for [X] days at [destination], correct?'",
   ],
   [
     "system",
-    "Extract the requested fields from the input. The field 'entity' refers to the first mentioned entity in the input."
+    "Maintain a friendly and welcoming tone, using phrases like: - 'Hi there! How can I assist you with your eSIM needs today?' - 'Great choice! Let`s get you set up with the perfect eSIM for your trip.",
   ],
+  [
+    "system",
+    "You only use Bahasa Indonesia as your main language. If the user asks using another language, tell them to use Bahasa Indonesia.",
+  ],
+
+  // new MessagesPlaceholder("history"),
   ["human", "{text}"],
 ]);
 
@@ -92,13 +100,16 @@ const model = new ChatOpenAI({
   streaming: true,
 });
 
+
+const memory = new BufferMemory({returnMessages: true, memoryKey: "history"});
+
 // store the data into the "documents" table, init supabase vector store instance with openai embedding model and db config args
 const vectorStore = await SupabaseVectorStore.fromDocuments(
   // docs,
   [...esimDocsOne, ...countryDocs],
   new OpenAIEmbeddings({
     apiKey: Bun.env.OPENAI_API_KEY,
-    model: "text-embedding-ada-002",
+    model: "text-embedding-3-large",
   }),
   {
     client: supabaseClient,
@@ -111,13 +122,16 @@ const vectorStore = await SupabaseVectorStore.fromDocuments(
 const chain = RunnableSequence.from([
   {
     context: async (input) => {
-      const retrievedData = await vectorStore.asRetriever().invoke(input);
-      return {
-        ...input,
-        context: JSON.stringify(retrievedData)
-      };
+      return JSON.stringify(await vectorStore.asRetriever().invoke(input));
     },
-    messages: new RunnablePassthrough(),
+    text: new RunnablePassthrough(),
+  }, 
+  {
+    context: async (input) => {
+      const context = await memory.loadMemoryVariables(input)
+      return context;
+    },
+    text: new RunnablePassthrough(),
   },
   promptTemplate,
   model,
@@ -127,78 +141,22 @@ const chain = RunnableSequence.from([
 app.use(
   cors({
     origin: "*",
-  }),
+  }),  
 );
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
-const TEMPLATEPROMPT = `Extract the requested fields from the input.
-
-The field "entity" refers to the first mentioned entity in the input.
-
-If you have the electronic SIM card plan your customer requested, provide it with an exciting manner, and tell them to have a good trip. Only provide on most relevant answer.
-
-If you happen to not have the electronic SIM card plan they request, apologize, and provide another electronic SIM card plans recommendation closest to what they requested but only based on the electronic SIM card plans you have. Maximum 2.
-
-If the customer tells you the duration of their travel or electronic SIM plan in format other than days, convert them to days first.
-
-You are an avid traveler and an outgoing person who sells electronic SIM card.,
-
-You are a friendly customer service representative for an eSIM traveler website. You welcome users and provide two options: product recommendations and a guide.
-
-You will assist users through the purchase process by verifying device compatibility, destination, and duration, and then recommending appropriate eSIM products.
-
-Emphasize clear and concise instructions, a friendly and helpful tone, quick responses, providing relevant recommendations, ensuring device compatibility, and guiding through the purchase process. Avoid technical jargon, lengthy or complicated responses, unrelated information, and pushing for a sale without proper guidance.
-
-for device compatibility list you can use this data [device compatibility]
-
-The interaction flow for recommendation is as follows: 
-1. Welcome the user and offer two options: recommendations and a guide. 
-2. Ask if the user wants to purchase an eSIM. 
-3. If 'No', continue the guide discussion. 
-4. If 'Yes', ask for the user's device model with examples. 
-5. Check if the device supports eSIM. 
-6. If not supported, inform the user and provide a URL to check supported models. 
-7. If supported, ask for the user's destination and duration of stay. 
-8. Search the database for suitable eSIM products based on the provided details. 
-9. If no suitable product is found, apologize and ask if the user wants to search for other products. 
-10. If suitable products are found, display the top 3 recommendations. 
-11. Allow the user to choose a product and provide detailed information. 
-12. Offer the option to continue to checkout or search for other products. 
-13. If the user chooses to proceed, direct them to the checkout page.
-
-The interaction flow for guide is as follows: 
-1. Welcome the user and offer two options: recommendations and a guide. 
-2. Ask if the user wants to see “guide”. 
-3. If 'No', continue the recommendation discussion. 
-4. If 'Yes', ask for “What can I help you?” and list of existing guides (About FAQ, Privacy Policy, terms and condition, and refund)
-5. If user choose one of the option, you need explain based on data
-6. At the end of explanation you need to give the menu about : 
-  - contact admin → give contact admin
-  - find other guide ? give the list option guide
-  - try to purchase ? navigate purchase in our website
-
-When additional information or clarification is needed, the chatbot will ask questions to ensure accuracy, such as: - 'Could you please provide more details about your device model?' - 'I didn't quite catch that. Could you specify the destination you'll be traveling to?' - 'Just to confirm, you'll be staying for [X] days at [destination], correct?
-
-Maintain a friendly and welcoming tone, using phrases like: - 'Hi there! How can I assist you with your eSIM needs today?' - 'Great choice! Let's get you set up with the perfect eSIM for your trip.
-  
-You use Bahasa Indonesia and English as your main language. You will answer based on the user's language preference.
-
-Input:
-
-{input}`;
-
 // make chunk of data with url to be used in the database
 // error handle for no country code
 // doest not to show recomendation if exact match found
 
-const getCountryCode = async (countryName: string) => {
+const getCountryCode = async (country_name: string) => {
   const { data, error } = await supabaseClient
   .from("countries")
   .select("*")
-  .eq("name", countryName);
+  .eq("name", country_name);
   
   if(error){
     console.error(`Database error: ${error.message}`);
@@ -229,20 +187,21 @@ const getEsimData = async (country_code: string | null, data_amount: number | nu
   }
 
   if (duration_in_days) {
-    query = query.gte("duration_in_days", duration_in_days);
+    query = query.eq("duration_in_days", duration_in_days);
   }
 
   if (!data_unit && !data_amount && duration_in_days) {
-    query = query.limit(2);
+    query = query.limit(3);
   }
 
   const { data, error } = await query;
-  console.log(`log line 221: `, data);
+
   if(error){
     console.error(`Database error: ${error.message}`);
     return null
   }
 
+  console.log('line 248: ', data)
   return data;
 };
 
@@ -256,151 +215,48 @@ const response = (status: number, success: boolean, message: string, chat_respon
   };
 };
 
-// app.post("/prompt", async (c) => {
-//   const body = await c.req.parseBody();
+function sanitizeOutput(output: any) {
+  return output.replace(/[^a-zA-Z0-9.,?!\s]/g, '');
+}
 
-//   c.header("Content-Type", "text/event-stream");
-//   c.header("Cache-Control", "no-cache");
-//   c.header("Connection", "keep-alive");
+const TEMPLATEPROMPT = `You are a friendly customer service representative here to assist users with product recommendations. 
 
-//   // invoke the chain, passing user's query, setting up readable stream
-//   const stream = new ReadableStream({
-//     async start(controller) {
-//       try {
-//         await chain.invoke(String(body.text), {
-//           callbacks: [
-//             {
-//               handleLLMNewToken(token: string) {
-//                 controller.enqueue(`data: ${token}\n\n`);
-//               },
-//             },
-//           ],
-//         });
+You will help users through the purchase process with the context as follows. which provides information for Japan, China, South Korea, and Indonesia, including country name, duration in days, data amount, data unit, and price. 
 
-//         controller.enqueue("event: done\ndata: [DONE]\n\n");
-//         controller.close();
-//       } catch (error) {
-//         controller.error(error);
-//       }
-//     },
-//   });
+Emphasize clear and concise instructions, a friendly and helpful tone, quick responses, relevant recommendations, ensuring guiding users through the purchase process. 
 
-//   return c.newResponse(stream);
-// });
+Avoid technical jargon, lengthy or complicated responses, unrelated information, and pushing for a sale without proper guidance. 
 
+Do not hallucinate by retrieving all the data that only races to the supabase
 
+The interaction flow for recommendations is as follows:
+Welcome the user and ask if the user wants to purchase an eSIM.
 
-// app.post("/prompt", async (c: any) => {
-//   try {
-//     const body = await c.req.json();
-//     const messages = body.messages ?? [];
-//     const currentMessageContent = messages[messages.length - 1]?.content;
+If 'No', said "Terima kasih telah menghubungi kami. Jika Anda memerlukan bantuan di lain waktu, jangan ragu untuk menghubungi kami.
 
-//     if (!currentMessageContent) {
-//       return c.json({ error: "No messages or the last message does not have a content property" }, 500);
-//     }
+If yes, ask for the user's destination and duration of stay.
 
-//     const prompt = PromptTemplate.fromTemplate(TEMPLATEPROMPT);
-//     const schema = z.object({
-//       country_code: z.string().describe("The code of the country"),
-//       country_name: z.string().describe("The name of the country"),
-//       data_amount: z.number().describe("The amount of data available"),
-//       data_unit: z.enum(["MB", "GB"]).describe("The unit of data"),
-//       duration_in_days: z.number().describe("The duration in days"),
-//       chat_response: z
-//         .string()
-//         .describe(
-//           "A response to the human's input and ask if they want to purchase that eSIM plan or not",
-//         ),
-//     });
-//     const functionCallingModel = model.bind({
-//       functions: [
-//         {
-//           name: "prompt_formatter",
-//           description: "Should always be used to properly format prompt",
-//           parameters: zodToJsonSchema(schema),
-//         },
-//       ],
-//       function_call: { name: "prompt_formatter" },
-//     });
+Search the database for suitable eSIM products based on the provided details.
 
-//     try {
+If no suitable product is found, apologize and ask if the user wants to search for other products.
 
-//       const chain = prompt
-//         .pipe(functionCallingModel)
-//         .pipe(new JsonOutputFunctionsParser());
-          
-//       const result: Document = await chain.invoke({ 
-//         input: currentMessageContent,
-//       });
-//       console.log("Result:", result);
+If suitable products are found, display recommendations.
 
-//       if(!result){
-//         return c.json({ error: "No result" }, 404);
-//       }
+Allow the user to choose a product and provide detailed information.
+Offer the option to continue to checkout or search for other products.
 
-//       let { country_code, country_name, data_amount, data_unit, duration_in_days, chat_response } = result;
-//       country_code = country_code ?? null;
-//       country_name = country_name ?? null;
-//       data_amount = data_amount ?? null;
-//       data_unit = data_unit ?? null;
-//       duration_in_days = duration_in_days ?? null;
+If the user chooses to proceed, direct them to the checkout page.
+Error Handling: If the checkout process encounters an issue, apologize, provide assistance, and suggest alternative steps or contacting support. End with a thank you message and offer further assistance if needed.
 
-//       const countryCode = await getCountryCode(country_name);
-//       const esimData = await getEsimData(countryCode.code, data_amount, data_unit, duration_in_days);
-      
-//       if(!esimData){
-//         return c.json(response(404, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, []));
-//       }
-      
-//       if(esimData.length === 0){
-//         const recommendation = await getCountryCode(country_name);
-//         if(!recommendation){
-//           return c.json(response(404, false, `No exact match found.`, chat_response, []));
-//         }
+When additional information or clarification is needed, ask questions to ensure accuracy, such as: - 'Could you please provide more details about your device model?' - 'I didn't quite catch that. Could you specify the destination you'll be traveling to?' - 'Just to confirm, you'll be staying for [X] days at [destination], correct?'
 
-//         const {data: closeMatches, error: closeMatchesError} = await supabaseClient
-//           .from("besim")
-//           .select("*")
-//           .eq("country_code", recommendation)
-//           .order("duration_in_days", { ascending: false })
-//           .limit(2);
+Maintain a friendly and welcoming tone, using phrases like: - 'Hi there! How can I assist you with your eSIM needs today?' - 'Great choice! Let's get you set up with the perfect eSIM for your trip.'
 
-//         if(closeMatchesError){
-//           return c.json(response(500, false, closeMatchesError.message, chat_response, []));
-//         }
+You only use Bahasa Indonesia as your main language. If the user asks using another language, tell them to use Bahasa Indonesia.
 
-//         if(closeMatches.length === 0){
-//           return c.json(response(404, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, []));
-//         }
+Input:
 
-//         return c.json(response(200, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, closeMatches));
-//       }
-
-//       let limitedEsimData = esimData.slice(0, 2);
-//       return c.json(response(200, true, "Exact match found", chat_response, 
-//         limitedEsimData.map(item => ({
-//           country_code: item.country_code,
-//           country_name : countryCode.name,
-//           created_at: item.created_at,
-//           data_amount: item.data_amount,
-//           data_unit: item.data_unit,
-//           duration_in_days: item.duration_in_days,
-//           id: item.id,
-//           idr_price: item.idr_price,
-//           option_id: item.option_id,
-//           plan_option: item.plan_option,
-//           updated_at: item.updated_at,
-//         }))
-//       ));
-//     } catch (e: any) {
-//       return c.json({ error: e.message }, 500);
-//     }
-//   } catch (e: any) {
-//     return c.json({ error: e.message }, 500);
-//   }
-  
-// });
+{input}`;
 
 app.post("/prompt", async (c: any) => {
   try {
@@ -411,33 +267,6 @@ app.post("/prompt", async (c: any) => {
     if (!currentMessageContent) {
       return c.json({ error: "No messages or the last message does not have a content property" }, 500);
     }
-
-    c.header("Content-Type", "text/event-stream");
-    c.header("Cache-Control", "no-cache");
-    c.header("Connection", "keep-alive");
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          await chain.invoke(currentMessageContent, {
-            callbacks: [
-              {
-                handleLLMNewToken(token: string) {
-                  controller.enqueue(`data: ${token}\n\n`);
-                },
-              },
-            ],
-          });
-  
-          controller.enqueue("event: done\ndata: [DONE]\n\n");
-          controller.close();
-        } catch (error) {
-          controller.error(error);
-        }
-      },
-    });
-
-    return c.newResponse(stream);
 
     const prompt = PromptTemplate.fromTemplate(TEMPLATEPROMPT);
     const schema = z.object({
@@ -479,6 +308,7 @@ app.post("/prompt", async (c: any) => {
       }
 
       let { country_code, country_name, data_amount, data_unit, duration_in_days, chat_response } = result;
+
       country_code = country_code ?? null;
       country_name = country_name ?? null;
       data_amount = data_amount ?? null;
@@ -486,24 +316,19 @@ app.post("/prompt", async (c: any) => {
       duration_in_days = duration_in_days ?? null;
 
       const countryCode = await getCountryCode(country_name);
-      const esimData = await getEsimData(countryCode.code, data_amount, data_unit, duration_in_days);
-      
-      if(!esimData){
-        return c.json(response(404, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, []));
+      if(!countryCode){
+        return c.json(response(404, false, `No exact match found.`, chat_response, []));
       }
-      
-      if(esimData.length === 0){
-        const recommendation = await getCountryCode(country_name);
-        if(!recommendation){
-          return c.json(response(404, false, `No exact match found.`, chat_response, []));
-        }
 
+      const esimData = await getEsimData(countryCode.code, data_amount, data_unit, duration_in_days);
+
+      if(esimData?.length === 0){
         const {data: closeMatches, error: closeMatchesError} = await supabaseClient
           .from("besim")
           .select("*")
-          .eq("country_code", recommendation)
-          .order("duration_in_days", { ascending: false })
-          .limit(2);
+          .like("country_code", `%${countryCode.code}%`)
+          .gte("duration_in_days", duration_in_days)
+          .limit(3);
 
         if(closeMatchesError){
           return c.json(response(500, false, closeMatchesError.message, chat_response, []));
@@ -513,25 +338,10 @@ app.post("/prompt", async (c: any) => {
           return c.json(response(404, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, []));
         }
 
-        return c.json(response(200, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, closeMatches));
+        return c.json(response(400, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, closeMatches));
       }
 
-      let limitedEsimData = esimData.slice(0, 2);
-      return c.json(response(200, true, "Exact match found", chat_response, 
-        limitedEsimData.map(item => ({
-          country_code: item.country_code,
-          country_name : countryCode.name,
-          created_at: item.created_at,
-          data_amount: item.data_amount,
-          data_unit: item.data_unit,
-          duration_in_days: item.duration_in_days,
-          id: item.id,
-          idr_price: item.idr_price,
-          option_id: item.option_id,
-          plan_option: item.plan_option,
-          updated_at: item.updated_at,
-        }))
-      ));
+      return c.json(response(200, true, "Exact match found", chat_response, esimData));
     } catch (e: any) {
       return c.json({ error: e.message }, 500);
     }
