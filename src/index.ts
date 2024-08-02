@@ -45,9 +45,6 @@ const loadCSVData = async (filePath: string) => {
 
 // const esimDocsOne = await loadCSVData("besims.csv");
 const esimDocsOne = await loadCSVData("beliesim_sample_product.csv");
-const esimDocsTwo = await loadCSVData("besims-two.csv");
-const esimDocsThree = await loadCSVData("besims-three.csv");
-const esimDocsFour = await loadCSVData("besims-four.csv");
 const countryDocs = await loadCSVData("countries.csv");
 
 // init supabase instance
@@ -95,7 +92,7 @@ const promptTemplate = ChatPromptTemplate.fromMessages([
 
 const model = new ChatOpenAI({
   apiKey: Bun.env.OPENAI_API_KEY,
-  model: "gpt-3.5-turbo",
+  model: "gpt-4o-mini",
   temperature: 1.5,
   streaming: true,
 });
@@ -152,26 +149,57 @@ app.get("/", (c) => {
 // error handle for no country code
 // doest not to show recomendation if exact match found
 
-const getCountryCode = async (country_name: string) => {
+const isCountryExist = async (country_code: string | null): Promise<Boolean> => {
   const { data, error } = await supabaseClient
   .from("countries")
   .select("*")
-  .eq("name", country_name);
+  .eq("code", country_code);
   
   if(error){
-    console.error(`Database error: ${error.message}`);
-    return null
+    throw error;
+  }
+
+  if(data.length === 0){
+    return false;
+  }
+  return true;
+}
+
+const getCountryNameFromCode = async (country_code: string | null): Promise<string | null> => {
+  const { data, error } = await supabaseClient
+  .from("countries")
+  .select("*")
+  .eq("code", country_code);
+  
+  if(error){
+    throw error;
   }
 
   if(data.length === 0){
     return null;
   }
-  return data[0];
+  return data[0].name;
+}
+
+const getCountryCodeFromName = async (country_name: string): Promise<string | null> => {
+  const { data, error } = await supabaseClient
+  .from("countries")
+  .select("*")
+  .like("name", `%${country_name}`);
+  
+  if(error){
+    throw error;
+  }
+
+  if(data.length === 0){
+    return null;
+  }
+  return data[0].code;
 };
 
 const getEsimData = async (country_code: string | null, data_amount: number | null, data_unit: string | null, duration_in_days: number | null) => {
   let query = supabaseClient
-    .from("besim")
+    .from("besim2")
     .select("*")
   
   if (country_code) {
@@ -179,7 +207,7 @@ const getEsimData = async (country_code: string | null, data_amount: number | nu
   }
 
   if (data_unit) {
-    query = query.like("data_unit", `%${data_unit}%`).eq("data_unit", data_unit);
+    query = query.eq("data_unit", data_unit);
   }
 
   if (data_amount) {
@@ -201,7 +229,6 @@ const getEsimData = async (country_code: string | null, data_amount: number | nu
     return null
   }
 
-  console.log('line 248: ', data)
   return data;
 };
 
@@ -271,9 +298,9 @@ app.post("/prompt", async (c: any) => {
     const prompt = PromptTemplate.fromTemplate(TEMPLATEPROMPT);
     const schema = z.object({
       country_code: z.string().describe("The code of the country"),
-      country_name: z.string().describe("The name of the country"),
+      country_name: z.string().describe("The name of the country in english"),
       data_amount: z.number().describe("The amount of data available"),
-      data_unit: z.enum(["MB", "GB"]).describe("The unit of data"),
+      data_unit: z.enum(["MB", "GB", "UNLIMITED"]).describe("The unit of data"),
       duration_in_days: z.number().describe("The duration in days"),
       chat_response: z
         .string()
@@ -314,19 +341,32 @@ app.post("/prompt", async (c: any) => {
       data_amount = data_amount ?? null;
       data_unit = data_unit ?? null;
       duration_in_days = duration_in_days ?? null;
+      
+      
+      let countryCode: string | null = await getCountryCodeFromName(country_name);
 
-      const countryCode = await getCountryCode(country_name);
-      if(!countryCode){
-        return c.json(response(404, false, `No exact match found.`, chat_response, []));
+      if(!countryCode) {
+        if (!await isCountryExist(country_code)) {
+          return c.json(response(404, false, `Country code not found.`, chat_response, []));
+
+        }
+
+        countryCode = country_code;
       }
 
-      const esimData = await getEsimData(countryCode.code, data_amount, data_unit, duration_in_days);
+      const esimData = await getEsimData(countryCode, data_amount, data_unit, duration_in_days);
 
-      if(esimData?.length === 0){
+      if(!esimData){
+        return c.json(response(500, false, `Error while fetching data`, chat_response, []));
+      }
+
+      const countryName: string | null = await getCountryNameFromCode(countryCode);
+
+      if(esimData.length === 0){
         const {data: closeMatches, error: closeMatchesError} = await supabaseClient
-          .from("besim")
+          .from("besim2")
           .select("*")
-          .like("country_code", `%${countryCode.code}%`)
+          .eq("country_code", countryCode)
           .gte("duration_in_days", duration_in_days)
           .limit(3);
 
@@ -338,10 +378,44 @@ app.post("/prompt", async (c: any) => {
           return c.json(response(404, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, []));
         }
 
-        return c.json(response(400, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, closeMatches));
+        let recomendationEsim = closeMatches.slice(0, 3);
+        return c.json(response(404, true, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, 
+          recomendationEsim.map(item => ({
+            country_code: item.country_code,
+            country_name : countryName,
+            created_at: item.created_at,
+            data_amount: item.data_amount,
+            data_unit: item.data_unit,
+            duration_in_days: item.duration_in_days,
+            id: item.id,
+            idr_price: item.idr_price,
+            option_id: item.option_id,
+            plan_option: item.plan_option,
+            updated_at: item.updated_at,
+          }))
+        ));
+
+        // return c.json(response(200, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, closeMatches));
       }
 
-      return c.json(response(200, true, "Exact match found", chat_response, esimData));
+      let limitedEsimData = esimData?.slice(0, 1);
+      return c.json(response(200, true, "Exact match found", chat_response, 
+        limitedEsimData?.map(item => ({
+          country_code: item.country_code,
+          country_name : countryName,
+          created_at: item.created_at,
+          data_amount: item.data_amount,
+          data_unit: item.data_unit,
+          duration_in_days: item.duration_in_days,
+          id: item.id,
+          idr_price: item.idr_price,
+          option_id: item.option_id,
+          plan_option: item.plan_option,
+          updated_at: item.updated_at,
+        }))
+      ));
+      
+      // return c.json(response(200, true, "Exact match found", chat_response, esimData));
     } catch (e: any) {
       return c.json({ error: e.message }, 500);
     }
