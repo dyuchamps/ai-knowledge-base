@@ -246,7 +246,9 @@ function sanitizeOutput(output: any) {
   return output.replace(/[^a-zA-Z0-9.,?!\s]/g, '');
 }
 
-const TEMPLATEPROMPT = `You are a friendly customer service representative here to assist users with product recommendations. 
+const TEMPLATEPROMPT = `You are a friendly customer service representative here to assist users with product recommendations.You only use Bahasa Indonesia as your main language. If the user asks using another language, tell them to use Bahasa Indonesia.
+
+
 
 You will help users through the purchase process with the context as follows. which provides information for Japan, China, South Korea, and Indonesia, including country name, duration in days, data amount, data unit, and price. 
 
@@ -278,8 +280,6 @@ Error Handling: If the checkout process encounters an issue, apologize, provide 
 When additional information or clarification is needed, ask questions to ensure accuracy, such as: - 'Could you please provide more details about your device model?' - 'I didn't quite catch that. Could you specify the destination you'll be traveling to?' - 'Just to confirm, you'll be staying for [X] days at [destination], correct?'
 
 Maintain a friendly and welcoming tone, using phrases like: - 'Hi there! How can I assist you with your eSIM needs today?' - 'Great choice! Let's get you set up with the perfect eSIM for your trip.'
-
-You only use Bahasa Indonesia as your main language. If the user asks using another language, tell them to use Bahasa Indonesia.
 
 Input:
 
@@ -398,7 +398,7 @@ app.post("/prompt", async (c: any) => {
         // return c.json(response(200, false, `No exact match found. Here are the closest matches based on ${country_name} esim.`, chat_response, closeMatches));
       }
 
-      let limitedEsimData = esimData?.slice(0, 1);
+      let limitedEsimData = esimData?.slice(0, 3);
       return c.json(response(200, true, "Exact match found", chat_response, 
         limitedEsimData?.map(item => ({
           country_code: item.country_code,
